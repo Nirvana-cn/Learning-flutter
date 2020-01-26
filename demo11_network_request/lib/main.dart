@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'model.dart';
+import 'starCharge.dart';
 
 void main() => runApp(MyApp());
 
@@ -14,7 +15,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: 'HTTP Request'),
     );
   }
 }
@@ -31,12 +32,6 @@ class _MyHomePageState extends State<MyHomePage> {
   var data = "";
 
   @override
-  void initState() {
-    super.initState();
-    startRequest();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -47,30 +42,33 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(data),
-            RaisedButton(
-              child: Text("请求数据"),
-              onPressed: startRequest,
-            )
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add),
+        onPressed: () {
+          startRequest();
+        },
       ),
     );
   }
 
   void startRequest() async {
     HttpClient httpClient = new HttpClient();
-    Uri uri = Uri(
-      scheme: "http",
-      host: "172.16.1.129",
-      port: 3000,
-    );
-    HttpClientRequest request = await httpClient.getUrl(uri);
+//    Uri uri = Uri(
+//      scheme: "https",
+//      host: "app-cdn.starcharge.com",
+//      path: "/appVersionJson.json"
+//    );
+//    HttpClientRequest request = await httpClient.getUrl(uri);
+    HttpClientRequest request = await httpClient.getUrl(Uri.parse("https://app-cdn.starcharge.com/appVersionJson.json"));
     HttpClientResponse response = await request.close();
     String responseBody = await response.transform(utf8.decoder).join();
     Map dataMap = json.decode(responseBody);
-    var dataObject = Data.fromJson(dataMap);
+    Version version = Version.fromJson(dataMap);
     setState(() {
-      data = "The name is ${dataObject.result[1].name}, and his age is ${dataObject.result[1].age}.";
+      data = version.androidStarcharge.appChangeLog;
     });
     httpClient.close();
   }

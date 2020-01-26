@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 import 'package:dio/dio.dart';
+import 'starCharge.dart';
 
 void main() => runApp(MyApp());
 
@@ -11,7 +13,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: 'Dio'),
     );
   }
 }
@@ -25,6 +27,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  String data = 'null';
 
   @override
   Widget build(BuildContext context) {
@@ -34,8 +37,37 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Center(
         child: Column(
+          children: <Widget>[
+            Container(
+              width: 300,
+              height: 200,
+              child: WebView(
+                initialUrl: "initialUrl",
+              ),
+            )
+          ],
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          startRequest();
+        },
+        child: Icon(Icons.add),
+      ),
     );
+  }
+
+  void startRequest() async {
+    Dio dio = Dio();
+    Response response;
+    try {
+      response = await dio.get("http://app-resource.camsnetec.com/appVersionJsonTest.json");
+      Version version = Version.fromJson(response.data);
+      setState(() {
+        data = version.androidStarcharge.appChangeLog;
+      });
+    } catch (e) {
+      print(e);
+    }
   }
 }

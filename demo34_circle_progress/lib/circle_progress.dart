@@ -1,85 +1,95 @@
 import 'dart:math';
 import 'dart:ui';
-import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-typedef Handle(int position);
+const double _DEFAULT_MIN = 0;
+const double _DEFAULT_MAX = 100;
+const double _DEFAULT_LINE_WIDTH = 10;
+const double _DEFAULT_SIZE = 50;
 
-class CircleProgress extends StatefulWidget {
-  CircleProgress();
+class CircleProgress extends StatelessWidget {
+  final double min;
+  final double max;
+  final double progress;
+  final double size;
+  final Color bgColor;
+  final Color progressColor;
+  final double lineWidth;
+  final Widget child;
 
-  @override
-  State<CircleProgress> createState() => _CircleProgressState();
-}
-
-class _CircleProgressState extends State<CircleProgress> {
-  int value = 0;
-  Timer _timer;
-
-  @override
-  void initState() {
-    super.initState();
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      if (value == 100) {
-        _timer.cancel();
-      } else {
-        setState(() {
-          value = value + 1;
-        });
-      }
-    });
-  }
+  CircleProgress({
+    @required this.progress,
+    this.lineWidth = _DEFAULT_LINE_WIDTH,
+    this.min = _DEFAULT_MIN,
+    this.max = _DEFAULT_MAX,
+    this.size = _DEFAULT_SIZE,
+    this.progressColor = Colors.blueAccent,
+    this.bgColor = Colors.grey,
+    this.child,
+  })  : assert(min < max),
+        assert(lineWidth > _DEFAULT_MIN);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 100,
-      height: 100,
+      width: size,
+      height: size,
       child: Stack(
         children: <Widget>[
           CustomPaint(
-            size: Size(100, 100), // 指定画布大小
-            painter: MyPainter(value),
+            size: Size(size, size), // 指定画布大小
+            painter: MyPainter(computerPercent(), lineWidth, progressColor, bgColor),
           ),
           Align(
             alignment: Alignment.center,
-            child: Text(" $value%"),
+            child: child,
           ),
         ],
       ),
     );
   }
+
+  double computerPercent() {
+    if (progress < min) return _DEFAULT_MIN;
+    if (progress > max) return _DEFAULT_MAX;
+    return (progress - min) / (max - min);
+  }
 }
 
 class MyPainter extends CustomPainter {
-  final int value;
+  final double percent;
+  final double width;
+  final Color progressColor;
+  final Color bgColor;
 
-  MyPainter(this.value);
+  MyPainter(this.percent, this.width, this.progressColor, this.bgColor);
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paintCircle = Paint()
-      ..color = Colors.greenAccent
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 10;
+    Offset circleCenter = Offset(size.width / 2, size.width / 2);
+    double radius = size.width / 2;
 
-    canvas.drawCircle(Offset(50, 50), 50, paintCircle);
+    final paintCircle = Paint()
+      ..color = bgColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = width;
+
+    canvas.drawCircle(circleCenter, radius, paintCircle);
 
     final paintArc = Paint()
-      ..color = Colors.blueAccent
+      ..color = progressColor
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 10;
+      ..strokeWidth = width;
 
     canvas.drawArc(
-      Rect.fromCircle(center: Offset(50, 50), radius: 50),
+      Rect.fromCircle(center: circleCenter, radius: radius),
       -pi / 2,
-      value / 100 * 2 * pi,
+      percent * 2 * pi,
       false,
       paintArc,
     );
-
   }
 
   @override

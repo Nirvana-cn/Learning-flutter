@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:demo34circleprogress/circle_progress.dart';
 import 'package:flutter/material.dart';
 
@@ -26,6 +28,22 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  double value = 10;
+
+  @override
+  void initState() {
+    super.initState();
+    Timer.periodic(Duration(seconds: 1), (timer) {
+      if (value == 100) {
+        timer.cancel();
+      } else {
+        setState(() {
+          value++;
+        });
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,7 +51,14 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-        child: CircleProgress(),
+        child: CircleProgress(
+          progress: value,
+          size: 100,
+          lineWidth: 15,
+          progressColor: Colors.greenAccent,
+          bgColor: Colors.black26,
+          child: Text("${value.toInt()}%"),
+        ),
       ),
     );
   }

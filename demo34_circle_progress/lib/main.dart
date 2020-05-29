@@ -29,6 +29,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   double value = 10;
+  double remain = 90;
 
   @override
   void initState() {
@@ -39,6 +40,7 @@ class _MyHomePageState extends State<MyHomePage> {
       } else {
         setState(() {
           value++;
+          remain--;
         });
       }
     });
@@ -51,13 +53,26 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-        child: CircleProgress(
-          progress: value,
-          size: 100,
-          lineWidth: 15,
-          progressColor: Colors.greenAccent,
-          bgColor: Colors.black26,
-          child: Text("${value.toInt()}%"),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            CircleProgress(
+              progress: value,
+              size: 100,
+              lineWidth: 15,
+              progressColor: Colors.greenAccent,
+              bgColor: Colors.black26,
+              child: Text("${value.toInt()}%"),
+            ),
+            Padding(padding: EdgeInsets.symmetric(vertical: 30)),
+            CircleProgress(
+              progress: remain,
+              size: 100,
+              lineWidth: 15,
+              progressColor: Colors.blueAccent,
+              child: Text("剩余${remain.toInt()}秒"),
+            ),
+          ],
         ),
       ),
     );

@@ -40,7 +40,8 @@ class CircleProgress extends StatelessWidget {
         children: <Widget>[
           CustomPaint(
             size: Size(size, size), // 指定画布大小
-            painter: MyPainter(computerPercent(), lineWidth, progressColor, bgColor),
+            foregroundPainter: _FontPainter(computerPercent(), lineWidth, progressColor),
+            painter: _BackPainter(lineWidth, bgColor),
           ),
           Align(
             alignment: Alignment.center,
@@ -58,13 +59,11 @@ class CircleProgress extends StatelessWidget {
   }
 }
 
-class MyPainter extends CustomPainter {
-  final double percent;
+class _BackPainter extends CustomPainter {
   final double width;
-  final Color progressColor;
   final Color bgColor;
 
-  MyPainter(this.percent, this.width, this.progressColor, this.bgColor);
+  _BackPainter(this.width, this.bgColor);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -77,11 +76,34 @@ class MyPainter extends CustomPainter {
       ..strokeWidth = width;
 
     canvas.drawCircle(circleCenter, radius, paintCircle);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) {
+    if (oldDelegate is _BackPainter) {
+      return oldDelegate.bgColor != bgColor ? true : false;
+    }
+    return false;
+  }
+}
+
+class _FontPainter extends CustomPainter {
+  final double percent;
+  final double width;
+  final Color progressColor;
+
+  _FontPainter(this.percent, this.width, this.progressColor);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    Offset circleCenter = Offset(size.width / 2, size.width / 2);
+    double radius = size.width / 2;
 
     final paintArc = Paint()
       ..color = progressColor
       ..style = PaintingStyle.stroke
-      ..strokeWidth = width;
+      ..strokeWidth = width
+      ..strokeCap = StrokeCap.round;
 
     canvas.drawArc(
       Rect.fromCircle(center: circleCenter, radius: radius),
@@ -94,6 +116,9 @@ class MyPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(CustomPainter oldDelegate) {
-    return true;
+    if (oldDelegate is _FontPainter) {
+      return (oldDelegate.percent != percent || oldDelegate.progressColor != progressColor) ? true : false;
+    }
+    return false;
   }
 }

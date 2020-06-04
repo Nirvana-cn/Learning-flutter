@@ -1,114 +1,112 @@
 import 'dart:async';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+const _ZERO_INDEX = 0;
+const _DEFAULT_BEGIN = 1;
+const _DEFAULT_TIME = Duration(seconds: 1);
+
 class Carousel extends StatefulWidget {
-  Carousel({Key key}) : super(key: key);
+  final Duration transitionTime;
+  final Duration stayTime;
+  final List<Widget> children;
+  final bool reverse;
+  final Axis scrollDirection;
+  final Curve curve;
+
+  Carousel({
+    Key key,
+    @required this.children,
+    this.transitionTime = _DEFAULT_TIME,
+    this.stayTime = _DEFAULT_TIME,
+    this.reverse = false,
+    this.scrollDirection = Axis.horizontal,
+    this.curve = Curves.linearToEaseOut,
+  }) : super(key: key);
 
   @override
   _CarouselState createState() => _CarouselState();
 }
 
 class _CarouselState extends State<Carousel> {
-  PageController _controller;
-  Timer _timer;
-  int _currentPage;
-  bool _manual;
+  int defaultEnd;
+  PageController controller;
+  Timer timer;
+  int index;
 
   @override
   void initState() {
     super.initState();
-    _manual = false;
-    _currentPage = 1;
-    _controller = PageController(initialPage: _currentPage);
-    _timer = Timer.periodic(Duration(seconds: 2), (timer) {
-      print("定时器");
-      _controller.animateToPage(_currentPage + 1, duration: Duration(seconds: 1), curve: Curves.linearToEaseOut);
-    });
+    index = _DEFAULT_BEGIN;
+    defaultEnd = widget.children.length;
+    controller = PageController(initialPage: index);
+
+    initTimer();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Listener(
-      onPointerDown: (downEvent) {
-        _manual = true;
-        print("down");
-        if (_timer.isActive) {
-          _timer.cancel();
+    List<Widget> widgets = generateWidgets();
+
+    return NotificationListener(
+      onNotification: (notification) {
+        switch (notification.runtimeType) {
+          case ScrollEndNotification:
+            if (index == _ZERO_INDEX) {
+              index = defaultEnd;
+              controller.jumpToPage(index);
+            }
+            if (index == widgets.length - 1) {
+              index = _DEFAULT_BEGIN;
+              controller.jumpToPage(index);
+            }
+            break;
         }
-        if (_currentPage == 0) {
-          Timer(Duration(milliseconds: 200), () {
-            _currentPage = 3;
-            _controller.jumpToPage(_currentPage);
-          });
-          return;
-        }
-        if (_currentPage == 4) {
-          Timer(Duration(milliseconds: 200), () {
-            _currentPage = 1;
-            _controller.jumpToPage(_currentPage);
-          });
-          return;
-        }
+        return true;
       },
-      onPointerUp: (upEvent) {
-        _manual = false;
-        print("up");
-        _timer = Timer.periodic(Duration(seconds: 2), (timer) {
-          print("定时器");
-          _controller.animateToPage(_currentPage + 1, duration: Duration(seconds: 1), curve: Curves.linearToEaseOut);
-        });
-      },
-      child: PageView(
-        scrollDirection: Axis.horizontal,
-        controller: _controller,
-        pageSnapping: true,
-        physics: const BouncingScrollPhysics(),
-        children: <Widget>[
-          Container(
-            color: Colors.amber,
-          ),
-          Container(
-            color: Colors.redAccent,
-          ),
-          Container(
-            color: Colors.green,
-          ),
-          Container(
-            color: Colors.amber,
-          ),
-          Container(
-            color: Colors.redAccent,
-          ),
-        ],
-        onPageChanged: (int page) {
-          print("onChange");
-          if (page == 0 && !_manual) {
-            Timer(Duration(seconds: 1), () {
-              _currentPage = 3;
-              _controller.jumpToPage(_currentPage);
-            });
-            return;
+      child: Listener(
+        onPointerDown: (downEvent) {
+          if (timer.isActive) {
+            timer.cancel();
           }
-          if (page == 4 && !_manual) {
-            Timer(Duration(seconds: 1), () {
-              _currentPage = 1;
-              _controller.jumpToPage(_currentPage);
-            });
-            return;
-          }
-          _currentPage = page;
-          print("Current Page: " + page.toString());
         },
+        onPointerUp: (upEvent) {
+          initTimer();
+        },
+        child: PageView(
+          scrollDirection: widget.scrollDirection,
+          controller: controller,
+          reverse: widget.reverse,
+          physics: const BouncingScrollPhysics(),
+          children: widgets,
+          onPageChanged: (int currentPage) {
+            index = currentPage;
+          },
+        ),
       ),
     );
+  }
+
+  List<Widget> generateWidgets() {
+    List<Widget> widgets = [];
+    Widget firstElement = widget.children.first;
+    Widget lastElement = widget.children.last;
+    widgets.add(lastElement);
+    widgets.addAll(widget.children);
+    widgets.add(firstElement);
+
+    return widgets;
+  }
+
+  void initTimer() {
+    timer = Timer.periodic(widget.stayTime + widget.transitionTime, (t) {
+      controller.animateToPage(++index, duration: widget.transitionTime, curve: widget.curve);
+    });
   }
 
   @override
   void dispose() {
     super.dispose();
-    _timer.cancel();
-    _controller.dispose();
+    timer.cancel();
+    controller.dispose();
   }
 }

@@ -29,7 +29,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,7 +39,22 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Container(
           width: 300,
           height: 200,
-          child: Carousel(),
+          child: Carousel(
+            children: [
+              Container(
+                color: Colors.redAccent,
+              ),
+              Container(
+                color: Colors.green,
+              ),
+              Container(
+                color: Colors.amber,
+              ),
+              Container(
+                color: Colors.blueAccent,
+              ),
+            ],
+          ),
         ),
       ),
     );

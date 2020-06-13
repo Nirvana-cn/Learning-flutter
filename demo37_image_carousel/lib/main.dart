@@ -36,28 +36,18 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Center(
         child: Container(
-          width: 300,
+          width: 400,
           height: 200,
           child: ImageCarousel(
-            children: [
-              FadeInImage(
-                width: 300,
-                height: 300,
-                fit: BoxFit.cover,
-                fadeInDuration: Duration(seconds: 1),
-                placeholder: AssetImage("images/game.png"),
-                image: NetworkImage("https://images.unsplash.com/photo-1503803548695-c2a7b4a5b875?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80"),
-              ),
-              Container(
-                color: Colors.green,
-              ),
-              Container(
-                color: Colors.amber,
-              ),
-              Container(
-                color: Colors.blueAccent,
-              ),
+            placeholder: "assets/test.png",
+            urls: [
+              "https://images.unsplash.com/photo-1503803548695-c2a7b4a5b875?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80",
+              "https://images.unsplash.com/photo-1503803548695-c2a7b4a5b875?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80",
+              "https://images.unsplash.com/photo-1503803548695-c2a7b4a5b875?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80",
+              "https://images.unsplash.com/photo-1503803548695-c2a7b4a5b875?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80",
+              "https://images.unsplash.com/photo-1503803548695-c2a7b4a5b875?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80",
             ],
+            indicatorRadius: 20,
           ),
         ),
       ),
